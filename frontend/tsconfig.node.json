@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "allowJs": true
+  },
+  "include": ["vite.config.js"]
+}

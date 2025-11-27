@@ -1,0 +1,31 @@
+{
+  "name": "pos-system",
+  "version": "1.0.0",
+  "description": "Point of Sale Management System",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
+  "keywords": [
+    "pos",
+    "sales",
+    "inventory"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "lucide-react": "^0.555.0",
+    "mongoose": "^7.0.0",
+    "pdfkit": "^0.13.0",
+    "twilio": "^3.77.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
