@@ -24,8 +24,24 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Connect to database
-connectDB();
+// Database connection for Serverless
+let isConnected = false;
+const connectToDatabase = async () => {
+  if (isConnected) return;
+  try {
+    await connectDB();
+    isConnected = true;
+    console.log('MongoDB Connected (Serverless)');
+  } catch (error) {
+    console.error('MongoDB Connection Error:', error);
+  }
+};
+
+// Middleware to ensure DB is connected
+app.use(async (req, res, next) => {
+  await connectToDatabase();
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -36,7 +52,7 @@ app.use('/api/debts', debtsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running' });
+  res.json({ status: 'Server is running', db: isConnected ? 'connected' : 'disconnected' });
 });
 
 // Error handling middleware
