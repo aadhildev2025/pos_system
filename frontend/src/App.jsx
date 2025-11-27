@@ -40,16 +40,21 @@ function App() {
 
   return (
     <div className="flex h-screen bg-gray-900 transition-colors duration-200 overflow-hidden">
-      <Sidebar
-        onLogout={handleLogout}
-        isOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        closeSidebar={closeSidebar}
-      />
-      <div className="flex-1 overflow-auto lg:ml-64 transition-all duration-300">
+      {isAuthenticated && (
+        <Sidebar
+          onLogout={handleLogout}
+          isOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          closeSidebar={closeSidebar}
+        />
+      )}
+      <div className={`flex-1 overflow-auto transition-all duration-300 ${isAuthenticated ? 'lg:ml-64' : ''}`}>
         <div className="animate-fade-in h-full">
           <Routes>
-            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            <Route
+              path="/login"
+              element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
+            />
             <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/sales" element={<PrivateRoute><Sales /></PrivateRoute>} />
             <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
@@ -60,6 +65,7 @@ function App() {
           </Routes>
         </div>
       </div>
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
