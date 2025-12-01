@@ -4,7 +4,7 @@ const Customer = require('../models/Customer');
 const Debt = require('../models/Debt');
 const Product = require('../models/Product');
 const authMiddleware = require('../middleware/auth');
-const { generateReceiptPDF } = require('../../services/pdfService');
+const { generateReceiptPDF } = require('../services/pdfService');
 
 const router = express.Router();
 

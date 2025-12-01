@@ -3,7 +3,7 @@ const Debt = require('../models/Debt');
 const Customer = require('../models/Customer');
 const Transaction = require('../models/Transaction');
 const authMiddleware = require('../middleware/auth');
-const { generateDebtStatementPDF } = require('../../services/pdfService');
+const { generateDebtStatementPDF } = require('../services/pdfService');
 
 const router = express.Router();
 
