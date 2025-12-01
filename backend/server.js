@@ -39,8 +39,21 @@ const connectToDatabase = async () => {
 
 // Middleware to ensure DB is connected
 app.use(async (req, res, next) => {
-  await connectToDatabase();
-  next();
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection failed in middleware:', error);
+    next(error);
+  }
+});
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'POS System Backend is running',
+    db_status: isConnected ? 'Connected' : 'Disconnected'
+  });
 });
 
 // Routes
