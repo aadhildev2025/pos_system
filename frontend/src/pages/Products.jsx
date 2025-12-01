@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2, Trash2, Package, Plus, X, Search, Filter } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { productAPI } from '../services/productAPI';
 import Header from '../components/Header';
 
@@ -19,6 +20,9 @@ const Products = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Helper to check if mobile view
+  const isMobile = window.innerWidth < 640;
 
   useEffect(() => {
     fetchProducts();
@@ -61,7 +65,12 @@ const Products = () => {
     setError('');
 
     if (!formData.name || !formData.price || !formData.supplier) {
-      setError('Name, price, and supplier are required');
+      const msg = 'Name, price, and supplier are required';
+      if (isMobile) {
+        toast.error(msg);
+      } else {
+        setError(msg);
+      }
       return;
     }
 
@@ -69,13 +78,20 @@ const Products = () => {
       setLoading(true);
       if (editingId) {
         await productAPI.update(editingId, formData);
+        toast.success('Product updated successfully');
       } else {
         await productAPI.create(formData);
+        toast.success('Product created successfully');
       }
       fetchProducts();
       resetForm();
     } catch (err) {
-      setError('Failed to save product');
+      const msg = 'Failed to save product';
+      if (isMobile) {
+        toast.error(msg);
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -304,8 +320,8 @@ const Products = () => {
       {/* Modal Form */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-slide-up">
-            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-100 dark:border-gray-600 flex justify-between items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] animate-slide-up">
+            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-100 dark:border-gray-600 flex justify-between items-center flex-shrink-0">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                 {editingId ? <Edit2 size={20} className="text-primary-600 dark:text-primary-400" /> : <Plus size={20} className="text-primary-600 dark:text-primary-400" />}
                 {editingId ? 'Edit Product' : 'Add New Product'}
@@ -315,118 +331,120 @@ const Products = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                  {error}
-                </div>
-              )}
+            <div className="overflow-y-auto p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && !isMobile && (
+                  <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    {error}
+                  </div>
+                )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="e.g. Wireless Mouse"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="e.g. Electronics"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Selling Price *</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Name *</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="e.g. Wireless Mouse"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</label>
+                    <input
+                      type="text"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="e.g. Electronics"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Selling Price *</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
+                      <input
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost Price</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
+                      <input
+                        type="number"
+                        name="costPrice"
+                        value={formData.costPrice}
+                        onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</label>
                     <input
                       type="number"
-                      name="price"
-                      value={formData.price}
+                      name="quantity"
+                      value={formData.quantity}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="0.00"
+                      className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Supplier *</label>
+                    <input
+                      type="text"
+                      name="supplier"
+                      value={formData.supplier}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Supplier Name"
                     />
                   </div>
                 </div>
+
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost Price</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
-                    <input
-                      type="number"
-                      name="costPrice"
-                      value={formData.costPrice}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quantity</label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={formData.quantity}
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="0"
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Product description..."
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Supplier *</label>
-                  <input
-                    type="text"
-                    name="supplier"
-                    value={formData.supplier}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Supplier Name"
-                  />
+
+                <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-auto">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 btn-primary"
+                  >
+                    {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+                  </button>
                 </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Product description..."
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 btn-primary"
-                >
-                  {loading ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
