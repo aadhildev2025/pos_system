@@ -1,7 +1,0 @@
-# Vercel Ignore
-node_modules
-.env
-.env.local
-dist
-receipts
-statements

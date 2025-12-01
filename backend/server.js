@@ -34,19 +34,14 @@ const connectToDatabase = async () => {
     console.log('MongoDB Connected (Serverless)');
   } catch (error) {
     console.error('MongoDB Connection Error:', error);
-    throw error;
   }
 };
 
-// Root route - Moved to top to allow health check even if DB fails
+// Root route - for health check
 app.get('/', (req, res) => {
   res.json({
     message: 'POS System Backend is running',
-    db_status: isConnected ? 'Connected' : 'Disconnected',
-    env_check: {
-      frontend_url: process.env.FRONTEND_URL ? 'Set' : 'Missing',
-      mongo_uri: process.env.MONGODB_URI ? 'Set' : 'Missing'
-    }
+    db_status: isConnected ? 'Connected' : 'Disconnected'
   });
 });
 
