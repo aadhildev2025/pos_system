@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, ShoppingBag, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { authAPI } from '../services/authAPI';
+import logo from '../assets/logo.png';
 
 const Login = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({
@@ -75,7 +76,7 @@ const Login = ({ onLoginSuccess }) => {
                     <div className="relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl blur-xl opacity-50 animate-pulse-slow"></div>
                         <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 p-6 rounded-3xl shadow-2xl">
-                            <ShoppingBag className="w-16 h-16 text-white" strokeWidth={2.5} />
+                            <img src={logo} alt="POS System" className="w-20 h-20 object-contain drop-shadow-md" />
                         </div>
                     </div>
                 </div>
