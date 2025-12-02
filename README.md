@@ -126,9 +126,6 @@ pos_final/
    PORT=5000
    MONGODB_URI=mongodb://localhost:27017/pos_system
    JWT_SECRET=your_jwt_secret_key_here
-   TWILIO_ACCOUNT_SID=your_twilio_account_sid
-   TWILIO_AUTH_TOKEN=your_twilio_auth_token
-   TWILIO_WHATSAPP_NUMBER=whatsapp:+1234567890
    ```
 
 5. **Start MongoDB** (if running locally)
@@ -288,9 +285,6 @@ pos_final/
 - **JWT** - Authentication
 - **PDFKit** - Server-side PDF generation
 
-### Third-party Services 📡
-- **Twilio** - WhatsApp API integration (optional)
-
 ---
 
 ## 📝 Environment Variables
@@ -300,9 +294,6 @@ pos_final/
 | `PORT` | Server port (default: 5000) | ❌ |
 | `MONGODB_URI` | MongoDB connection string | ✅ |
 | `JWT_SECRET` | JWT signing secret | ✅ |
-| `TWILIO_ACCOUNT_SID` | Twilio account SID | ❌ |
-| `TWILIO_AUTH_TOKEN` | Twilio auth token | ❌ |
-| `TWILIO_WHATSAPP_NUMBER` | Twilio WhatsApp number | ❌ |
 
 ---
 
@@ -321,13 +312,6 @@ We welcome contributions! Please follow these steps:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 📧 Support
-
-For support, email: support@possystem.com  
-Or visit our website: www.possystem.com
 
 ---
 
