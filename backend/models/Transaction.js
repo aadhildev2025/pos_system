@@ -16,6 +16,10 @@ const transactionSchema = new mongoose.Schema({
       productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
+        required: false,
+      },
+      productName: {
+        type: String,
         required: true,
       },
       quantity: {

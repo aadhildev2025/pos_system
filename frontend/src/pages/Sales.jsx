@@ -17,6 +17,7 @@ const Sales = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [customAmount, setCustomAmount] = useState('');
   const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
 
   useEffect(() => {
@@ -39,16 +40,22 @@ const Sales = () => {
     }
   };
 
+  const triggerError = (message) => {
+    setError(message);
+    setToast({ show: true, message, type: 'error' });
+    setTimeout(() => setToast({ show: false, message: '', type: 'error' }), 3000);
+  };
+
   const addToCart = (product) => {
     if (product.quantity <= 0) {
-      alert('Product is out of stock!');
+      triggerError('Product is out of stock!');
       return;
     }
 
     const existingItem = cartItems.find((item) => item.productId === product._id);
     if (existingItem) {
       if (existingItem.quantity >= product.quantity) {
-        alert('Not enough stock available!');
+        triggerError('Not enough stock available!');
         return;
       }
       setCartItems(
@@ -75,7 +82,7 @@ const Sales = () => {
   const updateQuantity = (productId, newQuantity) => {
     const item = cartItems.find(i => i.productId === productId);
     if (newQuantity > item.maxQuantity) {
-      alert(`Only ${item.maxQuantity} items in stock`);
+      triggerError(`Only ${item.maxQuantity} items in stock`);
       return;
     }
 
@@ -94,6 +101,26 @@ const Sales = () => {
     setCartItems(cartItems.filter((item) => item.productId !== productId));
   };
 
+  const handleCustomAdd = () => {
+    if (!customAmount || parseFloat(customAmount) <= 0) {
+      triggerError('Please enter a valid amount');
+      return;
+    }
+
+    const customItem = {
+      _id: `custom-${Date.now()}`,
+      name: 'Custom Item',
+      price: parseFloat(customAmount),
+      quantity: 999999, // High stock for custom items
+      isCustom: true
+    };
+
+    addToCart(customItem);
+    setCustomAmount('');
+    setToast({ show: true, message: 'Custom item added to cart', type: 'success' });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
+
   const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const debtAmount = Math.max(0, totalAmount - (paidAmount ? parseFloat(paidAmount) : 0));
 
@@ -104,29 +131,28 @@ const Sales = () => {
   const handleCheckout = async () => {
     // Validate cart
     if (cartItems.length === 0) {
-      setError('Please add items to cart');
+      triggerError('Please add items to cart');
       return;
     }
 
     // Credit payment validation
     if (paymentMethod === 'credit') {
       if (!selectedCustomer) {
-        setError('Credit sales require a registered customer. Please select a customer.');
+        triggerError('Credit sales require a registered customer. Please select a customer.');
         return;
       }
 
       // Check if customer has enough credit
       const customerDebt = totalAmount; // For credit, entire amount is debt
       if (customerCreditBalance < customerDebt) {
-        setError(`Insufficient credit balance. Available: Rs ${customerCreditBalance.toFixed(0)}, Required: Rs ${customerDebt.toFixed(0)}`);
+        triggerError(`Insufficient credit balance. Available: Rs ${customerCreditBalance.toFixed(0)}, Required: Rs ${customerDebt.toFixed(0)}`);
         return;
       }
     }
 
     // For cash, paid amount validation
     if (paymentMethod === 'cash' && (paidAmount === '' || parseFloat(paidAmount) < 0)) {
-      setToast({ show: true, message: 'Please enter a valid paid amount', type: 'error' });
-      setTimeout(() => setToast({ show: false, message: '', type: 'error' }), 3000);
+      triggerError('Please enter a valid paid amount');
       return;
     }
 
@@ -137,7 +163,8 @@ const Sales = () => {
       const transactionData = {
         customerId: selectedCustomer || null,
         items: cartItems.map((item) => ({
-          productId: item.productId,
+          productId: item.isCustom ? undefined : item.productId,
+          productName: item.productName,
           quantity: item.quantity,
           price: item.price,
         })),
@@ -163,7 +190,7 @@ const Sales = () => {
 
     } catch (err) {
       console.error("Checkout Error:", err);
-      setError(err.response?.data?.message || 'Transaction failed. Please try again.');
+      triggerError(err.response?.data?.message || 'Transaction failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -266,7 +293,7 @@ const Sales = () => {
 
       {/* Toast Notification - Bottom Center */}
       {toast.show && (
-        <div key={Date.now()} className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+        <div key={Date.now()} className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up ${toast.type === 'error' ? 'md:hidden' : ''}`}>
           <div className={`
             px-6 py-4 rounded-xl shadow-2xl backdrop-blur-lg border-2 flex items-center gap-3 min-w-[280px] max-w-[90vw]
             ${toast.type === 'error'
@@ -281,7 +308,7 @@ const Sales = () => {
       )}
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg flex items-center gap-2 animate-slide-up">
+        <div className="hidden md:flex mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg items-center gap-2 animate-slide-up">
           <div className="w-2 h-2 bg-red-500 rounded-full"></div>
           {error}
         </div>
@@ -447,6 +474,34 @@ const Sales = () => {
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Products */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Quick Add Custom Amount */}
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-soft border border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2">
+                <Plus size={20} className="text-primary-600 dark:text-primary-400" />
+                Quick Add Amount
+              </h2>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rs</span>
+                  <input
+                    type="number"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-bold text-gray-900 dark:text-white"
+                    onKeyDown={(e) => e.key === 'Enter' && handleCustomAdd()}
+                  />
+                </div>
+                <button
+                  onClick={handleCustomAdd}
+                  className="btn-primary px-6 py-3 flex items-center gap-2 whitespace-nowrap"
+                >
+                  <Plus size={20} />
+                  Add
+                </button>
+              </div>
+            </div>
+
             {/* Search Bar */}
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-soft flex items-center gap-3 border border-gray-100 dark:border-gray-700">
               <Search className="text-gray-400" size={20} />

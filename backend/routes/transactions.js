@@ -82,7 +82,9 @@ router.post('/', authMiddleware, async (req, res) => {
 
     // Update product quantities
     for (const item of items) {
-      await Product.findByIdAndUpdate(item.productId, { $inc: { quantity: -item.quantity } });
+      if (item.productId) {
+        await Product.findByIdAndUpdate(item.productId, { $inc: { quantity: -item.quantity } });
+      }
     }
 
     // Correctly populate using array syntax or separate awaits
