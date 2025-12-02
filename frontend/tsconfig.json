@@ -5,7 +5,14 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "checkJs": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/services/**/*.js",
+    "node_modules"
+  ]
 }
