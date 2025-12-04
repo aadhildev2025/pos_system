@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Trash2, Users, Plus, X, Search, Filter, Phone, MessageCircle, MapPin } from 'lucide-react';
+import { Edit2, Trash2, Users, Plus, X, Search, Filter, Phone, MessageCircle, MapPin, AlertTriangle } from 'lucide-react';
 import { customerAPI } from '../services/customerAPI';
 import Header from '../components/Header';
 
@@ -12,11 +12,13 @@ const Customers = () => {
     whatsappNumber: '',
     address: '',
     creditLimit: '',
+    initialDebt: '',
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, customer: null });
 
   useEffect(() => {
     fetchCustomers();
@@ -46,6 +48,7 @@ const Customers = () => {
       whatsappNumber: '',
       address: '',
       creditLimit: '',
+      initialDebt: '',
     });
     setEditingId(null);
     setIsModalOpen(false);
@@ -83,14 +86,20 @@ const Customers = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      try {
-        await customerAPI.delete(id);
-        fetchCustomers();
-      } catch (err) {
-        setError('Failed to delete customer');
-      }
+  const handleDeleteClick = (customer) => {
+    setDeleteModal({ isOpen: true, customer });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.customer) return;
+
+    try {
+      await customerAPI.delete(deleteModal.customer._id);
+      fetchCustomers();
+      setDeleteModal({ isOpen: false, customer: null });
+    } catch (err) {
+      setError('Failed to delete customer');
+      setDeleteModal({ isOpen: false, customer: null });
     }
   };
 
@@ -212,7 +221,7 @@ const Customers = () => {
                           <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(customer._id)}
+                          onClick={() => handleDeleteClick(customer)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
                           title="Delete"
                         >
@@ -290,7 +299,7 @@ const Customers = () => {
                     <span className="text-sm font-medium">Edit</span>
                   </button>
                   <button
-                    onClick={() => handleDelete(customer._id)}
+                    onClick={() => handleDeleteClick(customer)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all active:scale-95"
                   >
                     <Trash2 size={16} />
@@ -374,18 +383,41 @@ const Customers = () => {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Credit Limit</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
-                  <input
-                    type="number"
-                    name="creditLimit"
-                    value={formData.creditLimit}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="0.00"
-                  />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Credit Limit</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
+                    <input
+                      type="number"
+                      name="creditLimit"
+                      value={formData.creditLimit}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {editingId ? 'Add Debt (Optional)' : 'Initial Debt (Optional)'}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>
+                    <input
+                      type="number"
+                      name="initialDebt"
+                      value={formData.initialDebt}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {editingId && formData.initialDebt && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      This will be added to existing debt
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -406,6 +438,43 @@ const Customers = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <AlertTriangle size={32} className="text-red-600 dark:text-red-400" />
+              </div>
+
+              <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">
+                Delete Customer?
+              </h3>
+
+              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+                Are you sure you want to delete <span className="font-semibold text-gray-900 dark:text-white">{deleteModal.customer?.name}</span>? This action cannot be undone.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteModal({ isOpen: false, customer: null })}
+                  className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} />
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -9,7 +9,8 @@ import {
   History,
   LogOut,
   Menu,
-  X
+  X,
+  AlertTriangle
 } from 'lucide-react';
 
 const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
@@ -54,25 +55,32 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
-            <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <LogOut size={32} className="text-red-600" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <AlertTriangle size={32} className="text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Confirm Logout</h3>
-              <p className="text-gray-600 mb-6">Are you sure you want to end your session?</p>
+
+              <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">
+                Logout?
+              </h3>
+
+              <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+                Are you sure you want to end your session?
+              </p>
 
               <div className="flex gap-3">
                 <button
                   onClick={cancelLogout}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmLogout}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-red-500/30"
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all flex items-center justify-center gap-2"
                 >
+                  <LogOut size={18} />
                   Logout
                 </button>
               </div>

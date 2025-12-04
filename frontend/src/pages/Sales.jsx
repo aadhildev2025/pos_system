@@ -514,45 +514,53 @@ const Sales = () => {
               />
             </div>
 
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-soft card-hover border border-gray-100 dark:border-gray-700">
-              <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
-                <ShoppingCart size={24} className="text-primary-600 dark:text-primary-400" />
-                Select Products
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {filteredProducts.map((product) => (
-                  <button
-                    key={product._id}
-                    onClick={() => addToCart(product)}
-                    disabled={product.quantity <= 0}
-                    className={`
-                      text-left p-4 border rounded-xl transition-all duration-200 group relative overflow-hidden
-                      ${product.quantity <= 0
-                        ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 opacity-60 cursor-not-allowed'
-                        : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-md'
-                      }
-                    `}
-                  >
-                    <div className="relative z-10">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{product.name}</h3>
-                        <span className="bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-xs font-bold px-2 py-1 rounded-full">
-                          Rs {product.price.toFixed(0)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mb-2">{product.supplier}</p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className={`w-2 h-2 rounded-full ${product.quantity > 10 ? 'bg-green-500' : product.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span>
-                        <span className={`${product.quantity <= 5 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
-                          {product.quantity > 0 ? `${product.quantity} in stock` : 'Out of Stock'}
-                        </span>
-                      </div>
+            {searchTerm && (
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-soft card-hover border border-gray-100 dark:border-gray-700 animate-slide-up">
+                <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
+                  <Search size={24} className="text-primary-600 dark:text-primary-400" />
+                  Search Results
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <button
+                        key={product._id}
+                        onClick={() => addToCart(product)}
+                        disabled={product.quantity <= 0}
+                        className={`
+                          text-left p-4 border rounded-xl transition-all duration-200 group relative overflow-hidden
+                          ${product.quantity <= 0
+                            ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 opacity-60 cursor-not-allowed'
+                            : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-md'
+                          }
+                        `}
+                      >
+                        <div className="relative z-10">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{product.name}</h3>
+                            <span className="bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-xs font-bold px-2 py-1 rounded-full">
+                              Rs {product.price.toFixed(0)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-2">{product.supplier}</p>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className={`w-2 h-2 rounded-full ${product.quantity > 10 ? 'bg-green-500' : product.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span>
+                            <span className={`${product.quantity <= 5 ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                              {product.quantity > 0 ? `${product.quantity} in stock` : 'Out of Stock'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">
+                      <p>No products found matching "{searchTerm}"</p>
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  </button>
-                ))}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right: Cart & Checkout */}

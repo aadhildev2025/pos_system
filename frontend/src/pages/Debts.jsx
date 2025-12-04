@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { Download, DollarSign, FileText, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Download, DollarSign, FileText, ChevronDown, ChevronUp, AlertCircle, Search, X } from 'lucide-react';
 import { debtAPI } from '../services/debtAPI';
 import { customerAPI } from '../services/customerAPI';
 import Header from '../components/Header';
@@ -13,6 +13,7 @@ const Debts = () => {
   const [paymentModal, setPaymentModal] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [expandedCustomer, setExpandedCustomer] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -169,7 +170,12 @@ const Debts = () => {
       debts: customerDebts,
       totalRemaining,
     };
-  }).filter((item) => item.totalRemaining > 0);
+  })
+    .filter((item) => item.totalRemaining > 0)
+    .filter((item) =>
+      item.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.customer.phone.includes(searchTerm)
+    );
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -181,6 +187,26 @@ const Debts = () => {
           {error}
         </div>
       )}
+
+      {/* Search Bar */}
+      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-soft flex items-center gap-3 border border-gray-100 dark:border-gray-700">
+        <Search className="text-gray-400" size={20} />
+        <input
+          type="text"
+          placeholder="Search customers by name or phone..."
+          className="flex-1 outline-none text-gray-700 dark:text-gray-200 placeholder-gray-400 bg-transparent"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X size={20} />
+          </button>
+        )}
+      </div>
 
       {loading && debts.length === 0 ? (
         <div className="mt-8 bg-white rounded-xl shadow-soft p-8 text-center">
