@@ -110,17 +110,18 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 bottom-0 w-64 
+          fixed top-0 left-0 h-full max-h-screen w-64 
           bg-gradient-to-b from-gray-800 via-gray-900 to-gray-950
           border-r border-gray-700
           text-gray-200 shadow-2xl z-50
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col
+          flex flex-col overflow-hidden
         `}
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-6 border-b border-gray-700 flex items-center justify-between flex-shrink-0">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
               POS System
@@ -161,7 +162,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
         </nav>
 
         {/* Logout Button - Fixed at bottom */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-700 flex-shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
           <button
             onClick={handleLogoutClick}
             className="w-full flex items-center justify-center space-x-3 px-4 py-3 rounded-lg
