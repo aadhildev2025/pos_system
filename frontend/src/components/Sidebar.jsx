@@ -110,7 +110,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen w-64 
+          fixed top-0 left-0 bottom-0 w-64 
           bg-gradient-to-b from-gray-800 via-gray-900 to-gray-950
           border-r border-gray-700
           text-gray-200 shadow-2xl z-50

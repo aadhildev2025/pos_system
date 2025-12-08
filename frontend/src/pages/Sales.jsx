@@ -73,10 +73,14 @@ const Sales = () => {
           productName: product.name,
           price: product.price,
           quantity: 1,
-          maxQuantity: product.quantity
+          maxQuantity: product.quantity,
+          isCustom: product.isCustom || false // Preserve isCustom flag
         },
       ]);
     }
+
+    // Clear search bar after adding product
+    setSearchTerm('');
   };
 
   const updateQuantity = (productId, newQuantity) => {
@@ -227,7 +231,7 @@ const Sales = () => {
           ${receiptData.items.map(item => `
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
               <div style="flex: 1;">
-                <span style="display: block; color: #0f172a; font-weight: 500;">${item.productId?.name || 'Unknown Item'}</span>
+                <span style="display: block; color: #0f172a; font-weight: 500;">${item.productId?.name || item.productName || 'Custom Item'}</span>
                 <span style="font-size: 11px; color: #64748b;">${item.quantity} x Rs ${item.price.toFixed(0)}</span>
               </div>
               <span style="font-weight: 600; color: #0f172a;">Rs ${(item.quantity * item.price).toFixed(0)}</span>
@@ -367,7 +371,7 @@ const Sales = () => {
                     <div key={item._id} className="flex justify-between items-start bg-gray-50 p-3 rounded-lg">
                       <div className="flex-1">
                         <span className="text-sm font-semibold text-gray-900">
-                          {item.productId?.name || 'Unknown Product'}
+                          {item.productId?.name || item.productName || 'Custom Item'}
                         </span>
                         <div className="text-xs text-gray-500 mt-1">
                           {item.quantity} × Rs {item.price.toFixed(0)} = Rs {(item.quantity * item.price).toFixed(0)}
