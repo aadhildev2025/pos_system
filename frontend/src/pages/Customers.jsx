@@ -399,8 +399,9 @@ const Customers = () => {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {editingId ? 'Add Debt (Optional)' : 'Initial Debt (Optional)'}
+                  <label className="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                    <span>{editingId ? 'Add Debt' : 'Initial Debt'}</span>
+                    <span className="text-[10px] opacity-70 normal-case bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded ml-2">Optional</span>
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rs</span>

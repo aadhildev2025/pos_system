@@ -13,13 +13,11 @@ import Sidebar from './components/Sidebar';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    localStorage.removeItem('token');
+    return false;
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
-  }, []);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
