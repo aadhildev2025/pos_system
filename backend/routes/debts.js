@@ -63,6 +63,25 @@ router.put('/:debtId', authMiddleware, async (req, res) => {
     customer.totalDebt = Math.max(0, customer.totalDebt - actualPayment);
     await customer.save();
 
+    // Create a transaction record for the debt payment
+    const transaction = new Transaction({
+      transactionId: 'TXN' + Date.now(),
+      customerId: customer._id,
+      items: [{
+        productName: 'Debt Payment',
+        quantity: 1,
+        price: actualPayment
+      }],
+      totalAmount: actualPayment,
+      paidAmount: actualPayment,
+      debtAmount: 0,
+      paymentMethod: 'cash',
+      paymentStatus: 'paid',
+      type: 'debt_payment'
+    });
+
+    await transaction.save();
+
     res.json(debt);
   } catch (error) {
     res.status(500).json({ message: error.message });

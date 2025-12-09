@@ -58,6 +58,11 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  type: {
+    type: String,
+    enum: ['sale', 'debt_payment'],
+    default: 'sale',
+  },
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

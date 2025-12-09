@@ -97,7 +97,7 @@ const History = () => {
           ${transaction.items.map(item => `
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
               <div style="flex: 1;">
-                <span style="display: block; color: #0f172a; font-weight: 500;">${item.productId?.name || 'Unknown Item'}</span>
+                <span style="display: block; color: #0f172a; font-weight: 500;">${item.productId?.name || item.productName || 'Unknown Item'}</span>
                 <span style="font-size: 11px; color: #64748b;">${item.quantity} x Rs ${item.price.toFixed(0)}</span>
               </div>
               <span style="font-weight: 600; color: #0f172a;">Rs ${(item.quantity * item.price).toFixed(0)}</span>

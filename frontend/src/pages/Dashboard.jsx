@@ -33,7 +33,9 @@ const Dashboard = () => {
 
       // Calculate stats
       const totalTransactions = txRes.data.length;
-      const totalSales = txRes.data.reduce((sum, tx) => sum + tx.totalAmount, 0);
+      const totalSales = txRes.data
+        .filter(tx => tx.type !== 'debt_payment')
+        .reduce((sum, tx) => sum + tx.totalAmount, 0);
       const totalPaid = txRes.data.reduce((sum, tx) => sum + tx.paidAmount, 0);
 
       const customersWithDebt = new Set(debtRes.data
@@ -70,7 +72,9 @@ const Dashboard = () => {
       (tx) => new Date(tx.createdAt) >= startDate
     );
 
-    const totalAmount = filteredTransactions.reduce((sum, tx) => sum + tx.totalAmount, 0);
+    const totalAmount = filteredTransactions
+      .filter(tx => tx.type !== 'debt_payment')
+      .reduce((sum, tx) => sum + tx.totalAmount, 0);
     const totalPaidAmount = filteredTransactions.reduce((sum, tx) => sum + tx.paidAmount, 0);
     const totalDebtAmount = filteredTransactions.reduce((sum, tx) => sum + tx.debtAmount, 0);
 
