@@ -66,7 +66,7 @@ const Debts = () => {
     }
 
     const customerDebts = debts.filter(
-      (d) => d.customerId._id === customerId && d.remainingAmount > 0
+      (d) => d.customerId && d.customerId._id === customerId && d.remainingAmount > 0
     );
 
     if (customerDebts.length === 0) {
@@ -162,7 +162,7 @@ const Debts = () => {
   // Group debts by customer
   const debtsByCustomer = customers.map((customer) => {
     const customerDebts = debts.filter(
-      (d) => d.customerId._id === customer._id && d.remainingAmount > 0
+      (d) => d.customerId && d.customerId._id === customer._id && d.remainingAmount > 0
     );
     const totalRemaining = customerDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
     return {

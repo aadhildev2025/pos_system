@@ -39,7 +39,7 @@ const Dashboard = () => {
       const totalPaid = txRes.data.reduce((sum, tx) => sum + tx.paidAmount, 0);
 
       const customersWithDebt = new Set(debtRes.data
-        .filter(d => d.remainingAmount > 0)
+        .filter(d => d.remainingAmount > 0 && d.customerId) // Filter valid debts with existing customers
         .map(d => d.customerId._id)
       ).size;
 
