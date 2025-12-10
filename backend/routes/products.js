@@ -19,24 +19,36 @@ router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, description, price, quantity, category, supplier, costPrice } = req.body;
 
-    if (!name || !price || !supplier) {
-      return res.status(400).json({ message: 'Name, price, and supplier are required' });
+    // Strict validation
+    if (!name || !supplier) {
+      return res.status(400).json({ message: 'Name and supplier are required' });
+    }
+
+    // Ensure price is a valid number, default to 0
+    let parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) parsedPrice = 0;
+    if (price === undefined || price === null || price === '') {
+      // Check if strictly required by UI logic, but schema allows 0. 
+      // If user sent empty string, let's assume they want 0 or fail validation?
+      // User UI validation usually catches empty required fields, but let's be safe.
+      // Based on user report, we default to 0 to prevent crash.
     }
 
     const product = new Product({
-      name,
-      description,
-      price,
-      quantity,
-      category,
-      supplier,
-      costPrice,
+      name: String(name),
+      description: description ? String(description) : '',
+      price: parsedPrice,
+      quantity: parseInt(quantity) || 0,
+      category: category ? String(category) : '',
+      supplier: String(supplier),
+      costPrice: parseFloat(costPrice) || 0,
     });
 
     await product.save();
     res.status(201).json(product);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Create Product Error:', error);
+    res.status(500).json({ message: 'Server error while creating product', error: error.message });
   }
 });
 

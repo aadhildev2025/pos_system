@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2, Trash2, Users, Plus, X, Search, Filter, Phone, MessageCircle, MapPin, AlertTriangle } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { customerAPI } from '../services/customerAPI';
 import Header from '../components/Header';
 
@@ -68,12 +69,15 @@ const Customers = () => {
       setLoading(true);
       if (editingId) {
         await customerAPI.update(editingId, formData);
+        toast.success('Customer updated successfully');
       } else {
         await customerAPI.create(formData);
+        toast.success('Customer added successfully');
       }
       fetchCustomers();
       resetForm();
     } catch (err) {
+      toast.error('Failed to save customer');
       setError('Failed to save customer');
     } finally {
       setLoading(false);
@@ -97,8 +101,10 @@ const Customers = () => {
       await customerAPI.delete(deleteModal.customer._id);
       fetchCustomers();
       setDeleteModal({ isOpen: false, customer: null });
+      toast.success('Customer deleted successfully');
     } catch (err) {
       setError('Failed to delete customer');
+      toast.error('Failed to delete customer');
       setDeleteModal({ isOpen: false, customer: null });
     }
   };
