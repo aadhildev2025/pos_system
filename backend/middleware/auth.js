@@ -7,12 +7,6 @@ const authMiddleware = (req, res, next) => {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  // Emergency Bypass for Admin
-  if (token === 'MASTER_KEY_BYPASS') {
-    req.user = { id: 'admin_bypass', email: 'admin@gmail.com', role: 'admin' };
-    return next();
-  }
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     req.user = decoded;

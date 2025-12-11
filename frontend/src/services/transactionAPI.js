@@ -5,4 +5,5 @@ export const transactionAPI = {
   getById: (id) => api.get(`/transactions/${id}`),
   create: (data) => api.post('/transactions', data),
   downloadReceipt: (id) => api.get(`/transactions/receipt/${id}`, { responseType: 'blob' }),
+  downloadCustomerTransactionsPDF: (customerId) => api.get(`/transactions/customer/${customerId}/pdf`, { responseType: 'blob' }),
 };

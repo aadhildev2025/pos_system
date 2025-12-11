@@ -122,4 +122,26 @@ router.get('/receipt/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Download customer transactions PDF
+router.get('/customer/:customerId/pdf', authMiddleware, async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.customerId);
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    const transactions = await Transaction.find({ customerId: req.params.customerId })
+      .sort({ createdAt: -1 });
+
+    const filePath = await require('../services/pdfService').generateCustomerTransactionsPDF(customer, transactions);
+
+    res.download(filePath, `transactions_${customer.name}_${Date.now()}.pdf`, (err) => {
+      if (err) console.error('Download error:', err);
+    });
+  } catch (error) {
+    console.error('PDF Generation Error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

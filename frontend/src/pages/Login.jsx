@@ -29,21 +29,6 @@ const Login = ({ onLoginSuccess }) => {
         }
 
         try {
-            // Emergency Bypass for Admin
-            if (formData.email.trim() === 'admin@gmail.com' && formData.password.trim() === 'admin123') {
-                const mockUser = {
-                    id: 'admin_bypass',
-                    name: 'Admin',
-                    email: 'admin@gmail.com',
-                    role: 'admin'
-                };
-                localStorage.setItem('token', 'MASTER_KEY_BYPASS');
-                localStorage.setItem('user', JSON.stringify(mockUser));
-                onLoginSuccess(mockUser);
-                setLoading(false);
-                return;
-            }
-
             // Call backend directly
             const response = await authAPI.login({
                 email: formData.email.trim(),

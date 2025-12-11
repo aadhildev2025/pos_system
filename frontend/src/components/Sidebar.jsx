@@ -10,7 +10,8 @@ import {
   LogOut,
   Menu,
   X,
-  AlertTriangle
+  AlertTriangle,
+  Settings // Added import
 } from 'lucide-react';
 
 const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
@@ -24,6 +25,7 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
     { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
     { id: 'debts', label: 'Debts', icon: FileText, path: '/debts' },
     { id: 'history', label: 'History', icon: History, path: '/history' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' }, // Added Settings
   ];
 
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);

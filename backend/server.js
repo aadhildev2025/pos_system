@@ -74,7 +74,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5001; // Force 5001 to resolve EADDRINUSE conflicts
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {

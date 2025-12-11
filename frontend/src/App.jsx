@@ -9,6 +9,7 @@ import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Debts from './pages/Debts';
 import History from './pages/History';
+import Settings from './pages/Settings';
 import Sidebar from './components/Sidebar';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -59,6 +60,7 @@ function App() {
             <Route path="/customers" element={<PrivateRoute><Customers /></PrivateRoute>} />
             <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
             <Route path="/debts" element={<PrivateRoute><Debts /></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

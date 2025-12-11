@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Edit2, Trash2, Users, Plus, X, Search, Filter, Phone, MessageCircle, MapPin, AlertTriangle } from 'lucide-react';
+import { Edit2, Trash2, Users, Plus, X, Search, Filter, Phone, MessageCircle, MapPin, AlertTriangle, FileText } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { customerAPI } from '../services/customerAPI';
+import { transactionAPI } from '../services/transactionAPI';
 import Header from '../components/Header';
 
 const Customers = () => {
@@ -106,6 +107,26 @@ const Customers = () => {
       setError('Failed to delete customer');
       toast.error('Failed to delete customer');
       setDeleteModal({ isOpen: false, customer: null });
+    }
+  };
+
+  const handleDownloadTransactions = async (customer) => {
+    try {
+      const response = await transactionAPI.downloadCustomerTransactionsPDF(customer._id);
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `transactions_${customer.name}_${Date.now()}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success('Transaction history downloaded successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to download transaction history');
     }
   };
 
@@ -233,6 +254,13 @@ const Customers = () => {
                         >
                           <Trash2 size={18} />
                         </button>
+                        <button
+                          onClick={() => handleDownloadTransactions(customer)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all"
+                          title="Download Transaction History"
+                        >
+                          <FileText size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -303,6 +331,13 @@ const Customers = () => {
                   >
                     <Edit2 size={16} />
                     <span className="text-sm font-medium">Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDownloadTransactions(customer)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95"
+                  >
+                    <FileText size={16} />
+                    <span className="text-sm font-medium">History</span>
                   </button>
                   <button
                     onClick={() => handleDeleteClick(customer)}
