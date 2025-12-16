@@ -11,7 +11,9 @@ import {
   Menu,
   X,
   AlertTriangle,
-  Settings // Added import
+  Settings,
+  Warehouse,
+  TrendingUp
 } from 'lucide-react';
 
 const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
@@ -22,10 +24,11 @@ const Sidebar = ({ onLogout, isOpen, toggleSidebar, closeSidebar }) => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { id: 'sales', label: 'Sales', icon: ShoppingCart, path: '/sales' },
     { id: 'products', label: 'Products', icon: Package, path: '/products' },
+    { id: 'store', label: 'Store', icon: Warehouse, path: '/store' },
     { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
     { id: 'debts', label: 'Debts', icon: FileText, path: '/debts' },
     { id: 'history', label: 'History', icon: History, path: '/history' },
-    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' }, // Added Settings
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);

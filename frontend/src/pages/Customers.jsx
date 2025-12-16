@@ -436,6 +436,7 @@ const Customers = () => {
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="0.00"
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                 </div>
@@ -453,6 +454,7 @@ const Customers = () => {
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="0.00"
+                      onWheel={(e) => e.target.blur()}
                     />
                   </div>
                   {editingId && formData.initialDebt && (

@@ -39,7 +39,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Create transaction
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { customerId, items, totalAmount, paidAmount, paymentMethod } = req.body;
+    const { customerId, items, totalAmount, paidAmount, paymentMethod, dueDate } = req.body;
 
     if (!items || items.length === 0 || !totalAmount || paidAmount === undefined) {
       return res.status(400).json({ message: 'All required fields must be provided' });
@@ -69,12 +69,13 @@ router.post('/', authMiddleware, async (req, res) => {
         customer.totalDebt += debtAmount;
         await customer.save();
 
-        // Create debt record
+        // Create debt record with optional due date
         const debt = new Debt({
           customerId,
           transactionId: transaction._id,
           amount: debtAmount,
           remainingAmount: debtAmount,
+          dueDate: dueDate ? new Date(dueDate) : null,
         });
         await debt.save();
       }

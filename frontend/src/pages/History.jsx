@@ -75,10 +75,12 @@ const History = () => {
     element.innerHTML = `
       <div style="font-family: 'Inter', sans-serif; padding: 40px; max-width: 400px; margin: 0 auto; background: white;">
         <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #e2e8f0; padding-bottom: 20px;">
-          <img src="${logoPath}" style="width: 60px; height: 60px; margin-bottom: 10px;" crossorigin="anonymous" />
-          <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #0f172a;">POS SYSTEM</h1>
-          <p style="margin: 5px 0 0; color: #64748b; font-size: 12px;">Receipt #${transaction.transactionId}</p>
-          <p style="margin: 2px 0 0; color: #94a3b8; font-size: 12px;">${new Date(transaction.createdAt).toLocaleString()}</p>
+          <img src="${logoPath}" style="width: 80px; height: 80px; margin: 0 auto 10px auto; display: block;" crossorigin="anonymous" />
+          <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #0f172a;">Sarfan Stores</h1>
+          <p style="margin: 5px 0 0; color: #64748b; font-size: 12px;">KK Street, Puttalam</p>
+          <p style="margin: 2px 0 0; color: #64748b; font-size: 11px;">Tel: +94752255989 / +94723806943</p>
+          <p style="margin: 8px 0 0; color: #94a3b8; font-size: 11px; font-weight: 600;">Receipt #${transaction.transactionId}</p>
+          <p style="margin: 2px 0 0; color: #94a3b8; font-size: 11px;">${new Date(transaction.createdAt).toLocaleString()}</p>
         </div>
 
         <div style="margin-bottom: 20px;">

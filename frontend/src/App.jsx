@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Sales from './pages/Sales';
 import Products from './pages/Products';
+import Store from './pages/Store';
 import Customers from './pages/Customers';
 import Debts from './pages/Debts';
 import History from './pages/History';
@@ -57,6 +58,7 @@ function App() {
             <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/sales" element={<PrivateRoute><Sales /></PrivateRoute>} />
             <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
+            <Route path="/store" element={<PrivateRoute><Store /></PrivateRoute>} />
             <Route path="/customers" element={<PrivateRoute><Customers /></PrivateRoute>} />
             <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
             <Route path="/debts" element={<PrivateRoute><Debts /></PrivateRoute>} />

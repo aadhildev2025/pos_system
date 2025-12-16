@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { BarChart3, TrendingUp, Banknote, AlertCircle } from 'lucide-react';
+import { BarChart3, TrendingUp, Banknote, AlertCircle, Bell, Calendar, X } from 'lucide-react';
 import { transactionAPI } from '../services/transactionAPI';
 import { debtAPI } from '../services/debtAPI';
+import { customerAPI } from '../services/customerAPI';
 import Header from '../components/Header';
 
 const Dashboard = () => {
@@ -14,7 +15,9 @@ const Dashboard = () => {
   });
   const [transactions, setTransactions] = useState([]);
   const [debts, setDebts] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -23,13 +26,15 @@ const Dashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [txRes, debtRes] = await Promise.all([
+      const [txRes, debtRes, cusRes] = await Promise.all([
         transactionAPI.getAll(),
         debtAPI.getAll(),
+        customerAPI.getAll(),
       ]);
 
       setTransactions(txRes.data);
       setDebts(debtRes.data);
+      setCustomers(cusRes.data);
 
       // Calculate stats
       const totalTransactions = txRes.data.length;
@@ -56,6 +61,57 @@ const Dashboard = () => {
     }
   };
 
+  // Helper function to get due date status
+  const getDueDateStatus = (dueDate) => {
+    if (!dueDate) return null;
+
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return { status: 'overdue', label: 'Overdue', color: 'red', days: Math.abs(diffDays) };
+    } else if (diffDays <= 3) {
+      return { status: 'due-soon', label: 'Due Soon', color: 'yellow', days: diffDays };
+    } else {
+      return { status: 'on-track', label: 'On Track', color: 'green', days: diffDays };
+    }
+  };
+
+  // Get debts with reminders (overdue or due soon)
+  const reminderDebts = customers.map((customer) => {
+    const customerDebts = debts.filter(
+      (d) => d.customerId && d.customerId._id === customer._id && d.remainingAmount > 0
+    );
+    const totalRemaining = customerDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
+
+    const debtsWithDueDate = customerDebts.filter(d => d.dueDate);
+    let earliestDueDate = null;
+    let dueDateStatus = null;
+
+    if (debtsWithDueDate.length > 0) {
+      earliestDueDate = debtsWithDueDate.reduce((earliest, debt) => {
+        return new Date(debt.dueDate) < new Date(earliest.dueDate) ? debt : earliest;
+      }).dueDate;
+      dueDateStatus = getDueDateStatus(earliestDueDate);
+    }
+
+    return {
+      customer,
+      totalRemaining,
+      earliestDueDate,
+      dueDateStatus,
+    };
+  })
+    .filter((item) => item.totalRemaining > 0 && item.dueDateStatus &&
+      (item.dueDateStatus.status === 'overdue' || item.dueDateStatus.status === 'due-soon'))
+    .sort((a, b) => {
+      if (a.dueDateStatus.status === 'overdue' && b.dueDateStatus.status !== 'overdue') return -1;
+      if (a.dueDateStatus.status !== 'overdue' && b.dueDateStatus.status === 'overdue') return 1;
+      return a.dueDateStatus.days - b.dueDateStatus.days;
+    });
+
   const generateReport = (period) => {
     const now = new Date();
     let startDate;
@@ -80,7 +136,11 @@ const Dashboard = () => {
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h1 style="text-align: center; color: #1e3a8a;">POS SYSTEM</h1>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #1e3a8a; margin: 0; font-size: 28px;">Sarfan Stores</h1>
+          <p style="color: #666; font-size: 13px; margin: 5px 0;">KK Street, Puttalam</p>
+          <p style="color: #666; font-size: 12px; margin: 2px 0;">Tel: +94752255989 / +94723806943</p>
+        </div>
         <h2 style="text-align: center; color: #3b82f6;">${period.toUpperCase()} REPORT</h2>
         <p style="text-align: center; color: #666;">Generated: ${new Date().toLocaleString()}</p>
         <hr style="border: 1px solid #ddd; margin: 20px 0;">
@@ -159,7 +219,82 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <Header title="Dashboard" subtitle="System Overview & Analytics" />
+      <div className="relative">
+        <Header title="Dashboard" subtitle="System Overview & Analytics" />
+
+        {/* Notification Bell Icon */}
+        <button
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="absolute top-0 right-0 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-soft border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+          title="Debt Reminders"
+        >
+          <div className="relative">
+            <Bell size={24} className={reminderDebts.length > 0 ? 'text-orange-600 dark:text-orange-400 animate-pulse' : 'text-gray-600 dark:text-gray-400'} />
+            {reminderDebts.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-white dark:ring-gray-800">
+                {reminderDebts.length}
+              </span>
+            )}
+          </div>
+        </button>
+
+        {/* Notification Popup */}
+        {showNotifications && reminderDebts.length > 0 && (
+          <div className="absolute top-16 right-0 z-50 w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 animate-slide-up">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="text-orange-600 dark:text-orange-400" size={20} />
+                <h3 className="font-bold text-gray-900 dark:text-white">Collection Reminders</h3>
+              </div>
+              <button
+                onClick={() => setShowNotifications(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="max-h-96 overflow-y-auto p-2">
+              {reminderDebts.map((item) => (
+                <div
+                  key={item.customer._id}
+                  className={`p-3 m-2 rounded-lg border-2 ${item.dueDateStatus.status === 'overdue'
+                    ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+                    : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+                    }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className={`inline-block px-2 py-1 rounded-md text-xs font-bold mb-2 ${item.dueDateStatus.status === 'overdue'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-yellow-600 text-white'
+                        }`}>
+                        {item.dueDateStatus.status === 'overdue'
+                          ? `${item.dueDateStatus.days}d OVERDUE`
+                          : `DUE IN ${item.dueDateStatus.days}d`
+                        }
+                      </div>
+                      <p className="font-bold text-gray-900 dark:text-white">{item.customer.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{item.customer.phone}</p>
+                      {item.earliestDueDate && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          <Calendar size={12} />
+                          <span>Due: {new Date(item.earliestDueDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-red-600 dark:text-red-400">
+                        Rs {item.totalRemaining.toFixed(0)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {loading ? (
         <div className="text-center py-12">

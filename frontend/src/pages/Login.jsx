@@ -61,13 +61,13 @@ const Login = ({ onLoginSuccess }) => {
                     <div className="relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl blur-xl opacity-50 animate-pulse-slow"></div>
                         <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 p-6 rounded-3xl shadow-2xl">
-                            <img src={logo} alt="POS System" className="w-20 h-20 object-contain drop-shadow-md" />
+                            <img src={logo} alt="Sarfan Stores" className="w-20 h-20 object-cover drop-shadow-md" />
                         </div>
                     </div>
                 </div>
 
                 <h1 className="text-4xl sm:text-5xl font-bold text-center bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 bg-clip-text text-transparent mb-3">
-                    POS System
+                    Sarfan Stores
                 </h1>
                 <p className="text-gray-600 text-center mb-10 text-base">Point of Sale Management</p>
 

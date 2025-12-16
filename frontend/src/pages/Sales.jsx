@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
-import { Download, ShoppingCart, Plus, Minus, Trash2, Search, AlertCircle, CreditCard, Banknote } from 'lucide-react';
+import { Download, ShoppingCart, Plus, Minus, Trash2, Search, AlertCircle, CreditCard, Banknote, Calendar } from 'lucide-react';
 import { transactionAPI } from '../services/transactionAPI';
 import { customerAPI } from '../services/customerAPI';
 import { productAPI } from '../services/productAPI';
@@ -13,12 +13,15 @@ const Sales = () => {
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paidAmount, setPaidAmount] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [receiptData, setReceiptData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [toast, setToast] = useState({ show: false, message: '', type: 'error' });
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editingItemName, setEditingItemName] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -125,6 +128,21 @@ const Sales = () => {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
+  const renameCustomItem = (productId) => {
+    const newName = editingItemName.trim() || 'Custom Item';
+
+    setCartItems(
+      cartItems.map((item) =>
+        item.productId === productId
+          ? { ...item, productName: newName }
+          : item
+      )
+    );
+
+    setEditingItemId(null);
+    setEditingItemName('');
+  };
+
   const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const debtAmount = Math.max(0, totalAmount - (paidAmount ? parseFloat(paidAmount) : 0));
 
@@ -175,12 +193,14 @@ const Sales = () => {
         totalAmount,
         paidAmount: paymentMethod === 'credit' ? 0 : parseFloat(paidAmount),
         paymentMethod,
+        dueDate: (debtAmount > 0 && dueDate) ? dueDate : null, // Include due date only if there's debt
       };
 
       const response = await transactionAPI.create(transactionData);
       setReceiptData(response.data);
       setCartItems([]);
       setPaidAmount('');
+      setDueDate('');
       setSelectedCustomer('');
       setPaymentMethod('cash');
 
@@ -209,10 +229,12 @@ const Sales = () => {
     element.innerHTML = `
       <div style="font-family: 'Inter', sans-serif; padding: 40px; max-width: 400px; margin: 0 auto; background: white;">
         <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #e2e8f0; padding-bottom: 20px;">
-          <img src="${logoPath}" style="width: 60px; height: 60px; margin-bottom: 10px;" crossorigin="anonymous" />
-          <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #0f172a;">POS SYSTEM</h1>
-          <p style="margin: 5px 0 0; color: #64748b; font-size: 12px;">Receipt #${receiptData.transactionId}</p>
-          <p style="margin: 2px 0 0; color: #94a3b8; font-size: 12px;">${new Date(receiptData.createdAt).toLocaleString()}</p>
+          <img src="${logoPath}" style="width: 80px; height: 80px; margin: 0 auto 10px auto; display: block;" crossorigin="anonymous" />
+          <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #0f172a;">Sarfan Stores</h1>
+          <p style="margin: 5px 0 0; color: #64748b; font-size: 12px;">KK Street, Puttalam</p>
+          <p style="margin: 2px 0 0; color: #64748b; font-size: 11px;">Tel: +94752255989 / +94723806943</p>
+          <p style="margin: 8px 0 0; color: #94a3b8; font-size: 11px; font-weight: 600;">Receipt #${receiptData.transactionId}</p>
+          <p style="margin: 2px 0 0; color: #94a3b8; font-size: 11px;">${new Date(receiptData.createdAt).toLocaleString()}</p>
         </div>
 
         <div style="margin-bottom: 20px;">
@@ -494,6 +516,7 @@ const Sales = () => {
                     placeholder="Enter amount"
                     className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-bold text-gray-900 dark:text-white"
                     onKeyDown={(e) => e.key === 'Enter' && handleCustomAdd()}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </div>
                 <button
@@ -600,7 +623,36 @@ const Sales = () => {
                     cartItems.map((item) => (
                       <div key={item.productId} className="bg-white dark:bg-gray-700 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600 flex items-center justify-between group">
                         <div className="flex-1 min-w-0 mr-3">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{item.productName}</p>
+                          {item.isCustom && editingItemId === item.productId ? (
+                            <input
+                              type="text"
+                              value={editingItemName}
+                              onChange={(e) => setEditingItemName(e.target.value)}
+                              onBlur={() => renameCustomItem(item.productId)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') renameCustomItem(item.productId);
+                                if (e.key === 'Escape') {
+                                  setEditingItemId(null);
+                                  setEditingItemName('');
+                                }
+                              }}
+                              autoFocus
+                              className="w-full text-sm font-semibold text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-600 rounded px-2 py-1 outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          ) : (
+                            <p
+                              className={`text-sm font-semibold text-gray-900 dark:text-white truncate ${item.isCustom ? 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors' : ''}`}
+                              onClick={() => {
+                                if (item.isCustom) {
+                                  setEditingItemId(item.productId);
+                                  setEditingItemName(item.productName);
+                                }
+                              }}
+                              title={item.isCustom ? 'Click to rename' : ''}
+                            >
+                              {item.productName}
+                            </p>
+                          )}
                           <p className="text-xs text-gray-500 dark:text-gray-400">Rs {item.price.toFixed(0)} x {item.quantity}</p>
                         </div>
                         <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-600 rounded-lg p-1">
@@ -685,6 +737,7 @@ const Sales = () => {
                         onChange={(e) => setPaidAmount(e.target.value)}
                         placeholder="0"
                         className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-bold text-gray-900 dark:text-white"
+                        onWheel={(e) => e.target.blur()}
                       />
                     </div>
                     {debtAmount > 0 && paidAmount && (
@@ -708,11 +761,11 @@ const Sales = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600 dark:text-gray-400">Credit Limit:</span>
-                          <span className="font-semibold text-gray-900 dark:text-white">Rs {selectedCustomerObj?.creditLimit.toFixed(0) || 0}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">Rs {(selectedCustomerObj?.creditLimit || 0).toFixed(0)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Current Debt:</span>
-                          <span className="font-semibold text-red-600">Rs {selectedCustomerObj?.totalDebt.toFixed(0) || 0}</span>
+                          <span className="font-semibold text-red-600">Rs {(selectedCustomerObj?.totalDebt || 0).toFixed(0)}</span>
                         </div>
                         <div className="flex justify-between text-sm pt-2 border-t border-blue-200 dark:border-blue-800">
                           <span className="font-bold text-gray-700 dark:text-gray-300">Available Credit:</span>
@@ -736,6 +789,25 @@ const Sales = () => {
                   </div>
                 )}
               </div>
+
+              {/* Due Date Field - Show when customer selected and there will be debt */}
+              {selectedCustomer && (paymentMethod === 'credit' || debtAmount > 0) && (
+                <div className="mb-6 animate-slide-up">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Collection Due Date (Optional)
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-medium text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set when you want to collect this payment</p>
+                </div>
+              )}
 
               <button
                 onClick={handleCheckout}

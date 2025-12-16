@@ -36,7 +36,7 @@ router.get('/customer/:customerId', authMiddleware, async (req, res) => {
 // Record debt payment
 router.put('/:debtId', authMiddleware, async (req, res) => {
   try {
-    const { paymentAmount } = req.body;
+    const { paymentAmount, dueDate } = req.body;
 
     if (!paymentAmount || paymentAmount <= 0) {
       return res.status(400).json({ message: 'Valid payment amount is required' });
@@ -55,6 +55,11 @@ router.put('/:debtId', authMiddleware, async (req, res) => {
       amount: actualPayment,
       date: new Date(),
     });
+
+    // Update due date if provided
+    if (dueDate) {
+      debt.dueDate = new Date(dueDate);
+    }
 
     await debt.save();
 
@@ -81,6 +86,25 @@ router.put('/:debtId', authMiddleware, async (req, res) => {
     });
 
     await transaction.save();
+
+    res.json(debt);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update debt due date
+router.put('/:debtId/due-date', authMiddleware, async (req, res) => {
+  try {
+    const { dueDate } = req.body;
+
+    const debt = await Debt.findById(req.params.debtId);
+    if (!debt) {
+      return res.status(404).json({ message: 'Debt not found' });
+    }
+
+    debt.dueDate = dueDate ? new Date(dueDate) : null;
+    await debt.save();
 
     res.json(debt);
   } catch (error) {

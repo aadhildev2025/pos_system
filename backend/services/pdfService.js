@@ -284,9 +284,8 @@ const generateDebtStatementPDF = (customer, debts, transactions) => {
     });
 };
 
-// ========== ELEGANT CUSTOMER TRANSACTIONS PDF ==========
+// ========== PROFESSIONAL CUSTOMER TRANSACTIONS PDF ==========
 const generateCustomerTransactionsPDF = (customer, transactions) => {
-    // Use /tmp for Vercel serverless environment
     const tmpDir = process.env.NODE_ENV === 'production' ? '/tmp' : path.join(__dirname, '../reports');
     const fileName = `transactions_${customer._id}_${Date.now()}.pdf`;
     const filePath = path.join(tmpDir, fileName);

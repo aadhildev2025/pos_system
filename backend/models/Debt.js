@@ -32,6 +32,10 @@ const debtSchema = new mongoose.Schema({
       },
     },
   ],
+  dueDate: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

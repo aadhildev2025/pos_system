@@ -10,6 +10,8 @@ const productsRoutes = require('./routes/products');
 const customersRoutes = require('./routes/customers');
 const transactionsRoutes = require('./routes/transactions');
 const debtsRoutes = require('./routes/debts');
+const storeProductsRoutes = require('./routes/storeProducts');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 
@@ -62,6 +64,8 @@ app.use('/api/products', productsRoutes);
 app.use('/api/customers', customersRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/debts', debtsRoutes);
+app.use('/api/store-products', storeProductsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
